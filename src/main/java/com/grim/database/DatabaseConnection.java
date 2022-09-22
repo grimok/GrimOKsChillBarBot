@@ -9,10 +9,10 @@ import java.sql.*;
 
 public class DatabaseConnection {
 
-    private String user_name = "admin";
-    private String password = "balikler123A.";
+    private String user_name = "nope:>";
+    private String password = "nope:>";
     private String db_name = "chillbotdb";
-    private String host = "93.177.102.87";
+    private String host = "93.177.102.32";
     private int port = 3306;
 
     private Connection connection;
