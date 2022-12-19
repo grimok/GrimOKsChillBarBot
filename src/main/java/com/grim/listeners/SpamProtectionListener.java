@@ -22,6 +22,7 @@ public class SpamProtectionListener extends ListenerAdapter {
                 int size = chars.size();
                 int caps = 0;
 
+                //Test
                 for (char a : chars){
                     if (Character.isUpperCase(a)){
                         caps += 1;
