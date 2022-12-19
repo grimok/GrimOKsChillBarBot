@@ -27,7 +27,7 @@ public class Bot {
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException {
 
-        JDA jda = JDABuilder.createDefault("token", GatewayIntent.MESSAGE_CONTENT,
+        JDA jda = JDABuilder.createDefault("MTAxNDQ2NTQ4MzIxNjUzNTYwMw.GTY0Qp.phHD1B2SZq0jVbyaa2Syy1WAFM93sS78mBNQ-c", GatewayIntent.MESSAGE_CONTENT,
                 GatewayIntent.DIRECT_MESSAGE_REACTIONS,GatewayIntent.DIRECT_MESSAGES,GatewayIntent.GUILD_BANS,GatewayIntent.GUILD_INVITES,GatewayIntent.DIRECT_MESSAGE_TYPING,
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MESSAGES
                 ,GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_PRESENCES).enableIntents(GatewayIntent.GUILD_PRESENCES).enableCache(CacheFlag.ONLINE_STATUS).setChunkingFilter(ChunkingFilter.ALL).setEventPassthrough(true).enableCache(CacheFlag.VOICE_STATE).setMemberCachePolicy(MemberCachePolicy.ALL).build().awaitReady();
@@ -54,6 +54,7 @@ public class Bot {
         jda.addEventListener(new MessageEditListener());
         jda.addEventListener(new UserVoiceListener());
         jda.addEventListener(new EssentialListner());
+        jda.addEventListener(new SpamProtectionListener());
 
         jda.upsertCommand("temizle","Girilen sayı kadar mesaj siler.")
                 .addOptions(new OptionData(OptionType.INTEGER,"number","Silinecek mesaj sayısını giriniz.",true)

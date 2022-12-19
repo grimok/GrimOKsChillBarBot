@@ -9,10 +9,10 @@ import java.sql.*;
 
 public class DatabaseConnection {
 
-    private String user_name = "nope:>";
-    private String password = "nope:>";
-    private String db_name = "chillbotdb";
-    private String host = "93.177.102.32";
+    private String user_name = "neostellar";
+    private String password = "balikler123A.";
+    private String db_name = "neostell_chillbot";
+    private String host = "46.31.77.127";
     private int port = 3306;
 
     private Connection connection;
@@ -20,7 +20,7 @@ public class DatabaseConnection {
     private Statement statement = null;
 
     public DatabaseConnection(){
-        String url = "jdbc:mysql://"+host+":"+port+"/"+db_name+"?useUnicode=true&characterEncoding=utf8";
+        String url = "jdbc:mysql://"+host+":"+port+"/"+db_name+"?useUnicode=true&characterEncoding=utf8&autoReconnect=true";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -35,12 +35,24 @@ public class DatabaseConnection {
         }
     }
 
+    private void openConnection(){
+        try {
+            if (!connection.isClosed()) return;
+            String url = "jdbc:mysql://"+host+":"+port+"/"+db_name+"?useUnicode=true&characterEncoding=utf8&autoReconnect=true";
+            connection = DriverManager.getConnection(url,user_name,password);
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     public void messageEntryToDB(String id,String author,String message,String isEdited){
+
+        openConnection();
 
         try {
             statement = connection.createStatement();
 
-            String query = "Insert Into messages (id,author,content,isEdited,newContent) VALUES(" +"'"+id+"',"+"'"+author+"',"+"'"+message+"',"+"'"+isEdited+"',"+"'NaN')";
+            String query = "Insert Into messages (id,author,content,isEdited,newContent) VALUES(" +"'"+id+"',"+"'"+author+"',"+"'"+message+"',"+"'"+isEdited+"',"+"'https://img.freepik.com/free-vector/night-ocean-landscape-full-moon-stars-shine_107791-7397.jpg?w=1380&t=st=1671037748~exp=1671038348~hmac=2548d637f671b6332c93c4222565b0b85c3aa0641a1a3a32c1365ea5c15031db')";
 
             statement.executeUpdate(query);
 
@@ -52,7 +64,7 @@ public class DatabaseConnection {
     }
 
     public synchronized boolean isDBContainsMessage(String messageID){
-
+        openConnection();
         String query = "Select * From messages";
 
         try {
@@ -74,6 +86,7 @@ public class DatabaseConnection {
     }
 
     public synchronized String getMessage(String messageID){
+        openConnection();
         String query = "Select * From messages";
         try {
             statement = connection.createStatement();
@@ -92,7 +105,7 @@ public class DatabaseConnection {
     }
 
     public synchronized String getAuthorID(String messageID){
-
+        openConnection();
         String query = "Select * From messages";
 
         try {
@@ -112,6 +125,7 @@ public class DatabaseConnection {
     }
 
     public void dropMessageData(String messageID){
+        openConnection();
         String query = "DELETE FROM messages WHERE id="+"'"+messageID+"'";
         try {
             statement = connection.createStatement();
@@ -123,7 +137,8 @@ public class DatabaseConnection {
 
     }
 
-    public boolean isUserRegisteredToLevel(String id){
+    public boolean isUserRegisteredToLevel(String id) {
+        openConnection();
         try {
             statement = connection.createStatement();
 
@@ -135,14 +150,21 @@ public class DatabaseConnection {
 
             return resultSet.isBeforeFirst();
 
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
+
         return false;
     }
 
     public void insertUserToDatabase(String id){
+        openConnection();
         try {
             statement = connection.createStatement();
 
@@ -157,6 +179,7 @@ public class DatabaseConnection {
     }
 
     public int getExp(String id){
+        openConnection();
         String query = "Select * From level";
 
         try {
@@ -176,6 +199,7 @@ public class DatabaseConnection {
     }
 
     public int getLevel(String id){
+        openConnection();
         String query = "Select * From level";
 
         try {
@@ -195,6 +219,7 @@ public class DatabaseConnection {
     }
 
     public String getBackground(String id){
+        openConnection();
         String query = "Select * From level";
 
         try {
@@ -219,6 +244,7 @@ public class DatabaseConnection {
     }
 
     public String getColor(String id){
+        openConnection();
         String query = "Select * From level";
 
         try {
@@ -238,6 +264,7 @@ public class DatabaseConnection {
     }
 
     public void updateExp(String id,int exp){
+        openConnection();
         try {
             statement = connection.createStatement();
 
@@ -247,12 +274,15 @@ public class DatabaseConnection {
             String query = "Update level Set exp = " + "'"+nexp+"' where userID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public void updateLevel(String id){
+        openConnection();
         try {
             statement = connection.createStatement();
 
@@ -261,36 +291,42 @@ public class DatabaseConnection {
             String query = "Update level Set level = " + "'"+neww+"' where userID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public void updateBackground(String id,String url){
+        openConnection();
         try {
             statement = connection.createStatement();
 
             String query = "Update level Set background = " + "'"+url+"' where userID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public void updateColor(String id,String color){
+        openConnection();
         try {
             statement = connection.createStatement();
 
             String query = "Update level Set color = " + "'"+color+"' where userID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public int getRank(String ID){
+        openConnection();
         try {
             statement = connection.createStatement();
             String query = "select * from level order by exp DESC";
@@ -301,7 +337,7 @@ public class DatabaseConnection {
                     return set.getRow();
                 }
             }
-
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
@@ -309,17 +345,20 @@ public class DatabaseConnection {
     }
 
     public void updateMessage(String messageID,String newMessage){
+        openConnection();
         try {
             statement = connection.createStatement();
 
             String query = "Update messages Set content = " + "'"+newMessage+"' where id = " + "'"+messageID+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
     public void insertRoomToDatabase(Member member){
+        openConnection();
         try {
             statement = connection.createStatement();
 
@@ -327,6 +366,7 @@ public class DatabaseConnection {
 
             statement.executeUpdate(query);
 
+            connection.close();
 
         }catch (SQLException e){
             e.printStackTrace();
@@ -334,6 +374,7 @@ public class DatabaseConnection {
     }
 
     public boolean isUserRegisteredToPVC(String id){
+        openConnection();
         try {
             statement = connection.createStatement();
 
@@ -343,16 +384,25 @@ public class DatabaseConnection {
 
             ResultSet resultSet = statement.executeQuery(query);
 
-            return resultSet.isBeforeFirst();
 
+
+            return resultSet.isBeforeFirst();
 
         }catch (SQLException e){
             e.printStackTrace();
         }
+
+        try {
+            connection.close();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
         return false;
     }
 
     public synchronized String getRoomName(String id){
+        openConnection();
 
         String query = "Select * From pvc";
 
@@ -365,7 +415,7 @@ public class DatabaseConnection {
                     return rs.getString("roomName");
                 }
             }
-
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -373,7 +423,7 @@ public class DatabaseConnection {
     }
 
     public synchronized int getRoomLimit(String id){
-
+        openConnection();
         String query = "Select * From pvc";
 
         try {
@@ -385,14 +435,14 @@ public class DatabaseConnection {
                     return rs.getInt("roomLimit");
                 }
             }
-
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return 1;
     }
     public synchronized String getRoomAllowed(String id){
-
+        openConnection();
         String query = "Select * From pvc";
 
         try {
@@ -404,14 +454,14 @@ public class DatabaseConnection {
                     return rs.getString("bannedUsers");
                 }
             }
-
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return "[]";
     }
     public synchronized boolean isRoomLocked(String id){
-
+        openConnection();
         String query = "Select * From pvc";
 
         try {
@@ -423,7 +473,7 @@ public class DatabaseConnection {
                     return rs.getBoolean("isLocked");
                 }
             }
-
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -431,24 +481,28 @@ public class DatabaseConnection {
     }
 
     public void updateRoomName(String id,String roomName){
+        openConnection();
         try {
             statement = connection.createStatement();
 
             String query = "Update pvc Set roomName = " + "'"+roomName.replace("'","ˈ")+"' where ownerID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public void updateRoomLimit(String id,int roomLimit){
+        openConnection();
         try {
             statement = connection.createStatement();
 
             String query = "Update pvc Set roomLimit = " + "'"+roomLimit+"' where ownerID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
@@ -456,18 +510,21 @@ public class DatabaseConnection {
     }
 
     public void updateRoomLock(String id,int booleanEntry){
+        openConnection();
         try {
             statement = connection.createStatement();
 
             String query = "Update pvc Set isLocked = " + "'"+booleanEntry+"' where ownerID = " + "'"+id+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public void addAllowedMember(String owner,String addID){
+        openConnection();
         try {
 
             JSONArray array = new JSONArray(getRoomAllowed(owner));
@@ -487,12 +544,15 @@ public class DatabaseConnection {
             String query = "Update pvc Set bannedUsers = " + "'"+array+"' where ownerID = " + "'"+owner+"'";
 
             statement.executeUpdate(query);
+            connection.close();
+
         }catch (SQLException e){
             e.printStackTrace();
         }
     }
 
     public void removeAllowedMember(String owner,String removeID){
+        openConnection();
         try {
 
             JSONArray array = new JSONArray(getRoomAllowed(owner));
@@ -509,6 +569,7 @@ public class DatabaseConnection {
             String query = "Update pvc Set bannedUsers = " + "'"+array+"' where ownerID = " + "'"+owner+"'";
 
             statement.executeUpdate(query);
+            connection.close();
         }catch (SQLException e){
             e.printStackTrace();
         }

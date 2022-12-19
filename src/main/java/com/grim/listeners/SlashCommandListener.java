@@ -9,9 +9,11 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -46,11 +48,11 @@ public class SlashCommandListener extends ListenerAdapter {
             if (event.getSubcommandName().equals("goster")){
                 OptionMapping value = event.getOption("user");
                 if (value == null){
-                    event.deferReply().setEphemeral(false).queue();
                     ImageProcessor processor = new ImageProcessor();
                     ImageDownloader downloader = new ImageDownloader();
 
                     try {
+                        event.deferReply().queue();
                         DatabaseConnection connection = new DatabaseConnection();
                         downloader.downloadImage(event.getMember().getEffectiveAvatarUrl(),"pp.png",event);
                         String background = connection.getBackground(event.getMember().getId());
@@ -63,19 +65,16 @@ public class SlashCommandListener extends ListenerAdapter {
                         BufferedImage userStatus = processor.generateUserStatus(Objects.requireNonNull(event.getMember()).getOnlineStatus());
                         BufferedImage avatarBorder = processor.generateAvatarBorder(new Color(0,0,0),5);
                         BufferedImage parser = processor.imageParser(vignette,border,avatar,avatarBorder,userStatus,event.getMember()); //Vignate, border, avatar ,status, member
-
                         ImageIO.write(parser,"png", new File("output.jpg"));
-
                         FileUpload upload = FileUpload.fromData(new File("output.jpg"));
                         event.getHook().sendFiles(upload).queue();
                     } catch (IOException e) {
                         event.reply("Kullandığınız arka plan .png veya .jpg değil. Lütfen linkin sonundaki dosya uzantısına dikkat edin.").setEphemeral(true).queue();
                     }
+
                 }else{
-
-                    event.deferReply().setEphemeral(false).queue();
+                    event.deferReply().queue();
                     Member member = value.getAsMember();
-
                     ImageProcessor processor = new ImageProcessor();
                     ImageDownloader downloader = new ImageDownloader();
                     try {
@@ -92,12 +91,13 @@ public class SlashCommandListener extends ListenerAdapter {
                         BufferedImage parser = processor.imageParser(vignette,border,avatar,avatarBorder,userStatus,member); //Vignate, border, avatar ,status, member
                         // C:\Users\Administrator\Desktop\Bot\
                         ImageIO.write(parser,"png", new File("output.jpg"));
-
                         FileUpload upload = FileUpload.fromData(new File("output.jpg"));
                         event.getHook().sendFiles(upload).queue();
                     } catch (IOException e) {
                         event.reply("Bakmak istediğiniz kullanıcının arka planı bozuk.").setEphemeral(true).queue();
                     }
+
+
                 }
             }else if(event.getSubcommandName().equals("arka-plan")){
 
@@ -254,7 +254,7 @@ public class SlashCommandListener extends ListenerAdapter {
             }else{
                 int mils = (int) (time - lastGathered.get(event.getMember()));
                 int seconds = (int) (mils / 1000) % 60 ;
-                int rem = 60 - seconds;
+                int rem = 7 - seconds;
                 event.reply(":no_entry: Komudu tekrar kullanabilmek için `" + rem + "` saniye beklemelisin!").setEphemeral(true).queue();
             }
 
